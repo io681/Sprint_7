@@ -1,3 +1,4 @@
+import io.qameta.allure.junit4.DisplayName;
 import io.restassured.RestAssured;
 import ru.praktikum_services.qa_scooter.models.bodies.ResponseBodyAfterCreateOrder;
 import ru.praktikum_services.qa_scooter.models.entities.OrderEntity;
@@ -28,6 +29,7 @@ public class OrderByTrackTest {
         trackNumber = responseBodyAfterCreateOrder.getTrack();
     }
     @Test
+    @DisplayName("Проверка получения заказа по его track-номеру")
     public void getOrderByIdSuccessTest (){
         given()
                 .header("Content-type", "application/json")
@@ -40,6 +42,7 @@ public class OrderByTrackTest {
     }
 
     @Test
+    @DisplayName("Проверка получения заказа без track-номера")
     public void getOrderByIdWithoutTrackIdTest (){
         String emptyTrackNumber = "";
         given()
@@ -52,6 +55,7 @@ public class OrderByTrackTest {
                 .assertThat().body("message",equalTo("Недостаточно данных для поиска"));
     }
     @Test
+    @DisplayName("Проверка получения заказа с несуществующим track-номером")
     public void getOrderByIncorrectIdTest (){
         String incorrectTrackNumber = "000000";
         given()

@@ -1,3 +1,4 @@
+import io.qameta.allure.junit4.DisplayName;
 import io.restassured.RestAssured;
 import ru.praktikum_services.qa_scooter.models.bodies.listOrders.Orders;
 import ru.praktikum_services.qa_scooter.models.bodies.listOrders.ResponseBodyAfterGetListOrders;
@@ -16,6 +17,7 @@ public class ListOrderTest {
         RestAssured.baseURI = "https://qa-scooter.praktikum-services.ru";
     }
     @Test
+    @DisplayName("Проверка запроса получения списка заказов")
     public void getListOrderTest (){
 
         //проверка, что поле orders не пустое

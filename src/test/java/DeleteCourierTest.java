@@ -1,3 +1,5 @@
+import io.qameta.allure.Description;
+import io.qameta.allure.junit4.DisplayName;
 import io.restassured.RestAssured;
 import ru.praktikum_services.qa_scooter.models.bodies.RequestBodyForLogin;
 import ru.praktikum_services.qa_scooter.models.bodies.ResponseBodyAfterLogin;
@@ -41,8 +43,9 @@ public class DeleteCourierTest {
         //получение id курьера
         courierId = responseBodyAfterLogin.getId();
     }
-    //Успешное удаление курьера
     @Test
+    @DisplayName("Успешное создание курьера")
+
     public void DeleteSuccessCourierTest() {
         given()
                 .header("Content-type", "application/json")
@@ -53,10 +56,9 @@ public class DeleteCourierTest {
                 .statusCode(200)
                 .assertThat().body("ok",equalTo(true));
     }
-
-    // Некорректное удаление без id курьера.
-    // Тест будет падать, т.к. сервер возвращает другую ошибку 404 и  другой message (не по спецификации).
     @Test
+    @DisplayName("Некорректное удаление без id курьера")
+    @Description("Тест будет падать, т.к. сервер возвращает другую ошибку 404 и  другой message (не по спецификации)")
     public void DeleteCourierWithoutCourierIdTest() {
         given()
                 .header("Content-type", "application/json")
@@ -67,9 +69,8 @@ public class DeleteCourierTest {
                 .statusCode(400)
                 .assertThat().body("message",equalTo("Недостаточно данных для удаления курьера"));
     }
-
-    //Запрос с несуществующим id курьера
     @Test
+    @DisplayName("Некорректное удаление с несуществующим id курьера")
     public void DeleteCourierWithFakeCourierIdTest() {
         String fakeCourierId = "999999";
         given()

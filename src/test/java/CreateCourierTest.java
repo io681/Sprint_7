@@ -1,3 +1,4 @@
+import io.qameta.allure.junit4.DisplayName;
 import io.restassured.RestAssured;
 import ru.praktikum_services.qa_scooter.models.bodies.RequestBodyForLogin;
 import ru.praktikum_services.qa_scooter.models.bodies.ResponseBodyAfterLogin;
@@ -18,8 +19,8 @@ public class CreateCourierTest {
         RestAssured.baseURI = "https://qa-scooter.praktikum-services.ru";
         courier = randomCourier();
     }
-    //Курьер успешно создается
     @Test
+    @DisplayName("Успешный запрос создания курьера")
     public void createNewCourierSuccessTest() {
         given()
                 .header("Content-type", "application/json")
@@ -33,6 +34,7 @@ public class CreateCourierTest {
 
     //Проверка, что нельзя создать двух одинаковых курьеров
     @Test
+    @DisplayName("Проверка создания двух одинаковых курьеров")
     public void createDoubleCourierIncorrectTest() {
         Courier courier = randomCourier();
 
@@ -53,9 +55,8 @@ public class CreateCourierTest {
                  .statusCode(409)
                  .assertThat().body("message",equalTo("Этот логин уже используется. Попробуйте другой."));
     }
-
-    // Проверка обятельности поля при создании курьера
     @Test
+    @DisplayName("Проверка запроса создания курьера без обязательного поля")
     public void checkRequiredFieldsCreateCourierTest (){
         Courier courierWithoutPassword = randomCourierWithoutPassword();
         given()

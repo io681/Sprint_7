@@ -1,3 +1,4 @@
+import io.qameta.allure.junit4.DisplayName;
 import io.restassured.RestAssured;
 import ru.praktikum_services.qa_scooter.models.entities.OrderEntity;
 import org.junit.Before;
@@ -31,6 +32,7 @@ public class CreateOrderParameterizedTest {
         RestAssured.baseURI = "https://qa-scooter.praktikum-services.ru";
     }
     @Test
+    @DisplayName("Создание заказа, параметризированный по цвету самоката")
     public void createNewOrder() {
         OrderEntity orderEntity = randomOrder(color);
         given()

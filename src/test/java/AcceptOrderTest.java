@@ -1,3 +1,5 @@
+import io.qameta.allure.Description;
+import io.qameta.allure.junit4.DisplayName;
 import io.restassured.RestAssured;
 import ru.praktikum_services.qa_scooter.models.bodies.RequestBodyForLogin;
 import ru.praktikum_services.qa_scooter.models.bodies.ResponseBodyAfterCreateOrder;
@@ -68,8 +70,8 @@ public class AcceptOrderTest {
         Order orderObject = responseBodyAfterGetOrderByTrack.getOrder();
         orderId = orderObject.getId();
     }
-    // Успешный запрос
     @Test
+    @DisplayName("Проверка успешного принятия заказа")
     public void successAcceptOrderTest (){
         given()
                 .header("Content-type", "application/json")
@@ -80,8 +82,8 @@ public class AcceptOrderTest {
                 .statusCode(200)
                 .assertThat().body("ok",equalTo(true));
     }
-    //запрос без id курьера
     @Test
+    @DisplayName("Проверка запроса без id курьера")
     public void acceptOrderWithoutCourierIdTest (){
         given()
                 .header("Content-type", "application/json")
@@ -92,8 +94,8 @@ public class AcceptOrderTest {
                 .statusCode(400)
                 .assertThat().body("message",equalTo("Недостаточно данных для поиска"));
     }
-    //Запрос с неверным id курьера
     @Test
+    @DisplayName("Проверка запроса с неверным id курьера")
     public void acceptOrderWithIncorrectCourierIdTest (){
         String IncorrectCourierId = "999999";
         given()
@@ -106,9 +108,9 @@ public class AcceptOrderTest {
                 .assertThat().body("message",equalTo("Курьера с таким id не существует"));
     }
 
-    //Некорректный запрос без id заказа.
-    // Тест будет падать, т.к. сервер возвращает другую ошибку 404 и  другой message (не по спецификации).
     @Test
+    @DisplayName("Проверка запроса без id заказа")
+    @Description("Тест будет падать, т.к. сервер возвращает другую ошибку 404 и  другой message (не по спецификации)")
     public void acceptOrderWithoutOrderIdTest (){
         given()
                 .header("Content-type", "application/json")
@@ -119,9 +121,8 @@ public class AcceptOrderTest {
                 .statusCode(400)
                 .assertThat().body("message",equalTo("Недостаточно данных для поиска"));
     }
-
-    // Передать неверный номер заказа
     @Test
+    @DisplayName("Проверка запроса c неверным id заказа")
     public void acceptOrderWithIncorrectOrderIdTest (){
         String IncorrectOrderId = "000000";
         given()

@@ -1,3 +1,4 @@
+import io.qameta.allure.junit4.DisplayName;
 import io.restassured.RestAssured;
 import ru.praktikum_services.qa_scooter.models.bodies.ResponseBodyAfterLogin;
 import ru.praktikum_services.qa_scooter.models.entities.Courier;
@@ -25,8 +26,8 @@ public class LoginCourierTest {
                 .when()
                 .post("/api/v1/courier");
     }
-    // Успешная авторизация
     @Test
+    @DisplayName("Проверка успешной авторизации")
     public void successLoginCourierTest (){
         requestBodyForLogin = new RequestBodyForLogin(courier.getLogin(),courier.getPassword());
         given()
@@ -41,6 +42,7 @@ public class LoginCourierTest {
 
     // Проверка обязательности поля при авторизации
     @Test
+    @DisplayName("Проверка авторизации без обязательного поля")
     public void checkRequiredFieldsLoginCourierTest (){
         requestBodyForLogin = new RequestBodyForLogin(courier.getPassword());
         given()
@@ -52,9 +54,8 @@ public class LoginCourierTest {
                 .statusCode(400)
                 .assertThat().body("message",equalTo("Недостаточно данных для входа"));
     }
-
-    //Проверка некорректной авторизации под несуществующим пользователем
     @Test
+    @DisplayName("Проверка авторизации под несуществующим пользователем")
     public void incorrectLoginCourierTest (){
         Courier othercourier = randomCourier();
         requestBodyForLogin = new RequestBodyForLogin(othercourier.getLogin(), courier.getPassword());
