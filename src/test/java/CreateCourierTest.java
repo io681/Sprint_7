@@ -11,6 +11,7 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 import static ru.praktikum_services.qa_scooter.models.entities.CourierGenerator.*;
 
+@DisplayName("Создание курьера")
 public class CreateCourierTest {
     private  Courier courier;
 

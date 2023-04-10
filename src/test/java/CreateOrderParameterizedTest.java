@@ -14,6 +14,7 @@ import static ru.praktikum_services.qa_scooter.models.entities.OrderGenerator.ra
 import static org.hamcrest.CoreMatchers.notNullValue;
 
 @RunWith(Parameterized.class)
+@DisplayName("Создание заказа")
 public class CreateOrderParameterizedTest {
     private final List<String> color;
     public CreateOrderParameterizedTest(String[] color) {

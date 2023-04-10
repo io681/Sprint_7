@@ -11,6 +11,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertThat;
 
+@DisplayName("Список заказов")
 public class ListOrderTest {
     @Before
     public void setUp() {

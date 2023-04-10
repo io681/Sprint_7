@@ -19,6 +19,7 @@ import static ru.praktikum_services.qa_scooter.models.entities.CourierGenerator.
 import static ru.praktikum_services.qa_scooter.models.entities.OrderGenerator.randomOrder;
 import static org.hamcrest.Matchers.equalTo;
 
+@DisplayName("Принять заказ")
 public class AcceptOrderTest {
     private String courierId;
     private String orderId;

@@ -12,6 +12,7 @@ import static io.restassured.RestAssured.given;
 import static ru.praktikum_services.qa_scooter.models.entities.CourierGenerator.randomCourier;
 import static org.hamcrest.Matchers.equalTo;
 
+@DisplayName("Удаление курьера")
 public class DeleteCourierTest {
     private Courier courier;
     private RequestBodyForLogin requestBodyForLogin;

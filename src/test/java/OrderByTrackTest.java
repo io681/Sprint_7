@@ -12,6 +12,7 @@ import static ru.praktikum_services.qa_scooter.models.entities.OrderGenerator.ra
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.equalTo;
 
+@DisplayName("Получить заказ по его номеру")
 public class OrderByTrackTest {
     private int trackNumber;
     @Before

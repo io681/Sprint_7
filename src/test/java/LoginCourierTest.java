@@ -12,6 +12,7 @@ import static ru.praktikum_services.qa_scooter.models.entities.CourierGenerator.
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.equalTo;
 
+@DisplayName("Логин курьера")
 public class LoginCourierTest {
     private Courier courier;
     private RequestBodyForLogin requestBodyForLogin;
