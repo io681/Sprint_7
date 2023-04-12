@@ -2,7 +2,7 @@ package ru.praktikum_services.qa_scooter.models.bodies.orderByTrack;
 
 import ru.praktikum_services.qa_scooter.models.bodies.listOrders.Orders;
 
-public class ResponseBodyAfterGetOrderByTrackEntity extends Orders {
+public class ResponseBodyAfterGetOrderByTrack extends Orders {
 private Order order;
 
     public Order getOrder() {

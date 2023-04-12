@@ -1,94 +1,63 @@
 import io.qameta.allure.junit4.DisplayName;
-import io.restassured.RestAssured;
-import ru.praktikum_services.qa_scooter.models.bodies.RequestBodyForLogin;
-import ru.praktikum_services.qa_scooter.models.bodies.ResponseBodyAfterLogin;
+import io.restassured.response.ValidatableResponse;
+import org.apache.http.HttpStatus;
 import ru.praktikum_services.qa_scooter.models.entities.Courier;
+import ru.praktikum_services.qa_scooter.api.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertEquals;
 import static ru.praktikum_services.qa_scooter.models.entities.CourierGenerator.*;
 
 @DisplayName("Создание курьера")
 public class CreateCourierTest {
-    private  Courier courier;
-
+    private CourierApi courierApi;
     @Before
     public void setUp() {
-        RestAssured.baseURI = "https://qa-scooter.praktikum-services.ru";
-        courier = randomCourier();
+        courierApi = new CourierApi();
     }
     @Test
     @DisplayName("Успешный запрос создания курьера")
     public void createNewCourierSuccessTest() {
-        given()
-                .header("Content-type", "application/json")
-                .body(courier)
-                .when()
-                .post("/api/v1/courier")
-                .then()
-                .statusCode(201)
-                .assertThat().body("ok",equalTo(true));
+        ValidatableResponse response = courierApi.createCourier();
+        assertEquals("Статус кода неверный",
+                HttpStatus.SC_CREATED, response.extract().statusCode());
+        assertEquals("Успешный запрос не возвращает ok:true",
+                true, response.extract().path("ok"));
     }
-
-    //Проверка, что нельзя создать двух одинаковых курьеров
     @Test
     @DisplayName("Проверка создания двух одинаковых курьеров")
     public void createDoubleCourierIncorrectTest() {
-        Courier courier = randomCourier();
-
-        // первичное создание курьера
-         given()
-                .header("Content-type", "application/json")
-                .body(courier)
-                .when()
-                .post("/api/v1/courier");
-
-        // повторное создание курьера
-         given()
-                 .header("Content-type", "application/json")
-                 .body(courier)
-                 .when()
-                 .post("/api/v1/courier")
-                 .then()
-                 .statusCode(409)
-                 .assertThat().body("message",equalTo("Этот логин уже используется. Попробуйте другой."));
+        courierApi = new CourierApi();
+        courierApi.createCourier();
+        ValidatableResponse response = courierApi.createCourier();
+        assertEquals("Статус кода неверный",
+                HttpStatus.SC_CONFLICT, response.extract().statusCode());
+        assertEquals("Некорректный текст ошибки",
+                "Этот логин уже используется. Попробуйте другой.", response.extract().path("message"));
     }
     @Test
     @DisplayName("Проверка запроса создания курьера без обязательного поля")
     public void checkRequiredFieldsCreateCourierTest (){
-        Courier courierWithoutPassword = randomCourierWithoutPassword();
-        given()
-                .header("Content-type", "application/json")
-                .body(courierWithoutPassword)
-                .when()
-                .post("/api/v1/courier")
-                .then()
-                .statusCode(400)
-                .assertThat().body("message",equalTo("Недостаточно данных для создания учетной записи"));
+        CourierApi courierApi2 = new CourierApi(randomCourierWithoutPassword());
+//        courierApi.setCourier(randomCourierWithoutPassword());
+        ValidatableResponse response = courierApi2.createCourier();
+        assertEquals("Статус кода неверный",
+                HttpStatus.SC_BAD_REQUEST, response.extract().statusCode());
+        assertEquals("Некорректный текст ошибки",
+                "Недостаточно данных для создания учетной записи", response.extract().path("message"));
     }
-    //Удаление курьера для очистки  данных
     @After
     public void cleanTestData(){
-        //авторизация курьера для получения id курьера
-        RequestBodyForLogin requestBodyForLogin = new RequestBodyForLogin(courier.getLogin(),courier.getPassword());
-        ResponseBodyAfterLogin responseBodyAfterLogin = given()
-                .header("Content-type", "application/json")
-                .body(requestBodyForLogin)
-                .when()
-                .post("/api/v1/courier/login")
-                .body().as(ResponseBodyAfterLogin.class);
-
-        //получение id курьера
-        String courierId = responseBodyAfterLogin.getId();
-
+        //авторизация курьера и получение id курьера
+        Courier courier = courierApi.getCourier();
+        Integer courierId = courierApi
+                .loginCourier(courier.getLogin(),courier.getPassword())
+                .extract().path("id");
         //удаление курьера
-        given()
-                .header("Content-type", "application/json")
-                .body("{}")
-                .when()
-                .delete("/api/v1/courier/"+ courierId);
+        if (courierId != null) {
+            courierApi.deleteCourier(courierId);
+        }
     }
 }

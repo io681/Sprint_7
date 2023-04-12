@@ -1,107 +1,73 @@
 import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
-import io.restassured.RestAssured;
-import ru.praktikum_services.qa_scooter.models.bodies.RequestBodyForLogin;
-import ru.praktikum_services.qa_scooter.models.bodies.ResponseBodyAfterLogin;
+import io.restassured.response.ValidatableResponse;
+import org.apache.http.HttpStatus;
+import ru.praktikum_services.qa_scooter.api.CourierApi;
 import ru.praktikum_services.qa_scooter.models.entities.Courier;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static io.restassured.RestAssured.given;
-import static ru.praktikum_services.qa_scooter.models.entities.CourierGenerator.randomCourier;
-import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertEquals;
 
 @DisplayName("Удаление курьера")
 public class DeleteCourierTest {
     private Courier courier;
-    private RequestBodyForLogin requestBodyForLogin;
-    private ResponseBodyAfterLogin responseBodyAfterLogin;
-    private String courierId;
+    private int courierId;
+    private CourierApi courierApi;
     @Before
     public void setUp() {
-        RestAssured.baseURI = "https://qa-scooter.praktikum-services.ru";
-
         //создание курьера
-        courier = randomCourier();
-        given()
-                .header("Content-type", "application/json")
-                .body(courier)
-                .when()
-                .post("/api/v1/courier")
-                .then()
-                .statusCode(201)
-                .assertThat().body("ok",equalTo(true));
+        courierApi = new CourierApi();
+        courierApi.createCourier();
 
         //авторизация курьера для получения id курьера
-        requestBodyForLogin = new RequestBodyForLogin(courier.getLogin(),courier.getPassword());
-        responseBodyAfterLogin = given()
-                .header("Content-type", "application/json")
-                .body(requestBodyForLogin)
-                .when()
-                .post("/api/v1/courier/login")
-                .body().as(ResponseBodyAfterLogin.class);
-        //получение id курьера
-        courierId = responseBodyAfterLogin.getId();
+        courier = courierApi.getCourier();
+        courierId = courierApi
+                .loginCourier(courier.getLogin(),courier.getPassword())
+                .extract().path("id");
     }
     @Test
     @DisplayName("Успешное создание курьера")
-
     public void DeleteSuccessCourierTest() {
-        given()
-                .header("Content-type", "application/json")
-                .body("{}")
-                .when()
-                .delete("/api/v1/courier/"+ courierId)
-                .then()
-                .statusCode(200)
-                .assertThat().body("ok",equalTo(true));
+        ValidatableResponse response = courierApi.deleteCourier(courierId);
+        assertEquals("Статус кода неверный",
+                HttpStatus.SC_OK, response.extract().statusCode());
+        assertEquals("Успешный запрос не возвращает ok:true",
+                true, response.extract().path("ok"));
     }
     @Test
     @DisplayName("Некорректное удаление без id курьера")
     @Description("Тест будет падать, т.к. сервер возвращает другую ошибку 404 и  другой message (не по спецификации)")
     public void DeleteCourierWithoutCourierIdTest() {
-        given()
-                .header("Content-type", "application/json")
-                .body("{}")
-                .when()
-                .delete("/api/v1/courier/")
-                .then()
-                .statusCode(400)
-                .assertThat().body("message",equalTo("Недостаточно данных для удаления курьера"));
+        ValidatableResponse response = courierApi.deleteCourier();
+        assertEquals("Статус кода неверный",
+                HttpStatus.SC_BAD_REQUEST, response.extract().statusCode());
+        assertEquals("Некорректный текст ошибки",
+                "Недостаточно данных для удаления курьера", response.extract().path("message"));
     }
     @Test
     @DisplayName("Некорректное удаление с несуществующим id курьера")
     public void DeleteCourierWithFakeCourierIdTest() {
-        String fakeCourierId = "999999";
-        given()
-                .header("Content-type", "application/json")
-                .body("{}")
-                .when()
-                .delete("/api/v1/courier/" + fakeCourierId)
-                .then()
-                .statusCode(404)
-                .assertThat().body("message",equalTo("Курьера с таким id нет."));
+        int fakeCourierId = 999999;
+        ValidatableResponse response = courierApi.deleteCourier(fakeCourierId);
+        assertEquals("Статус кода неверный",
+                HttpStatus.SC_NOT_FOUND, response.extract().statusCode());
+        assertEquals("Некорректный текст ошибки",
+                "Курьера с таким id нет.", response.extract().path("message"));
     }
     @After
     public void cleanTestData(){
-        //авторизация курьера для получения id курьера
-        requestBodyForLogin = new RequestBodyForLogin(courier.getLogin(),courier.getPassword());
-        responseBodyAfterLogin = given()
-                .header("Content-type", "application/json")
-                .body(requestBodyForLogin)
-                .when()
-                .post("/api/v1/courier/login")
-                .body().as(ResponseBodyAfterLogin.class);
-
-        //получение id курьера
-        courierId = responseBodyAfterLogin.getId();
+        //авторизация курьера и получение id курьера
+        courier = courierApi.getCourier();
+        Integer courierId = courierApi
+                .loginCourier(courier.getLogin(),courier.getPassword())
+                .extract().path("id");
 
         //удаление курьера
-        given()
-                .header("Content-type", "application/json")
-                .body("{}")
-                .when()
-                .delete("/api/v1/courier/"+ courierId);
+        if (courierId != null) {
+            courierApi.deleteCourier(courierId);
+        }
+
     }
 }
