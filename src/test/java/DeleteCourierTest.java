@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static ru.praktikum_services.qa_scooter.models.entities.CourierGenerator.randomCourier;
 
 @DisplayName("Удаление курьера")
 public class DeleteCourierTest {
@@ -19,10 +20,10 @@ public class DeleteCourierTest {
     public void setUp() {
         //создание курьера
         courierApi = new CourierApi();
-        courierApi.createCourier();
+        courier = randomCourier();
+        courierApi.createCourier(courier);
 
         //авторизация курьера для получения id курьера
-        courier = courierApi.getCourier();
         courierId = courierApi
                 .loginCourier(courier.getLogin(),courier.getPassword())
                 .extract().path("id");
@@ -59,7 +60,6 @@ public class DeleteCourierTest {
     @After
     public void cleanTestData(){
         //авторизация курьера и получение id курьера
-        courier = courierApi.getCourier();
         Integer courierId = courierApi
                 .loginCourier(courier.getLogin(),courier.getPassword())
                 .extract().path("id");

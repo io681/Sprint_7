@@ -18,12 +18,12 @@ public class LoginCourierTest {
     @Before
     public void setUp() {
         courierApi = new CourierApi();
-        courierApi.createCourier();
+        courier = randomCourier();
+        courierApi.createCourier(courier);
     }
     @Test
     @DisplayName("Проверка успешной авторизации")
     public void successLoginCourierTest (){
-        courier = courierApi.getCourier();
         ValidatableResponse response = courierApi.loginCourier(courier.getLogin(),courier.getPassword());
         assertEquals("Статус кода неверный",
                 HttpStatus.SC_OK, response.extract().statusCode());
@@ -32,7 +32,6 @@ public class LoginCourierTest {
     @Test
     @DisplayName("Проверка авторизации без обязательного поля")
     public void checkRequiredFieldsLoginCourierTest (){
-        courier = courierApi.getCourier();
         ValidatableResponse response = courierApi.loginCourier(courier.getPassword());
         assertEquals("Статус кода неверный",
                 HttpStatus.SC_BAD_REQUEST, response.extract().statusCode());
@@ -52,7 +51,6 @@ public class LoginCourierTest {
     @After
     public void cleanTestData(){
         //авторизация курьера и получение id курьера
-        courier = courierApi.getCourier();
         int courierId = courierApi
                 .loginCourier(courier.getLogin(),courier.getPassword())
                 .extract().path("id");

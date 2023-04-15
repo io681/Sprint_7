@@ -13,14 +13,16 @@ import static ru.praktikum_services.qa_scooter.models.entities.CourierGenerator.
 @DisplayName("Создание курьера")
 public class CreateCourierTest {
     private CourierApi courierApi;
+    private Courier courier;
     @Before
     public void setUp() {
         courierApi = new CourierApi();
+        courier = randomCourier();
     }
     @Test
     @DisplayName("Успешный запрос создания курьера")
     public void createNewCourierSuccessTest() {
-        ValidatableResponse response = courierApi.createCourier();
+        ValidatableResponse response = courierApi.createCourier(courier);
         assertEquals("Статус кода неверный",
                 HttpStatus.SC_CREATED, response.extract().statusCode());
         assertEquals("Успешный запрос не возвращает ok:true",
@@ -29,9 +31,8 @@ public class CreateCourierTest {
     @Test
     @DisplayName("Проверка создания двух одинаковых курьеров")
     public void createDoubleCourierIncorrectTest() {
-        courierApi = new CourierApi();
-        courierApi.createCourier();
-        ValidatableResponse response = courierApi.createCourier();
+        courierApi.createCourier(courier);
+        ValidatableResponse response = courierApi.createCourier(courier);
         assertEquals("Статус кода неверный",
                 HttpStatus.SC_CONFLICT, response.extract().statusCode());
         assertEquals("Некорректный текст ошибки",
@@ -40,9 +41,8 @@ public class CreateCourierTest {
     @Test
     @DisplayName("Проверка запроса создания курьера без обязательного поля")
     public void checkRequiredFieldsCreateCourierTest (){
-        CourierApi courierApi2 = new CourierApi(randomCourierWithoutPassword());
-//        courierApi.setCourier(randomCourierWithoutPassword());
-        ValidatableResponse response = courierApi2.createCourier();
+        Courier courierWithoutPassword = randomCourierWithoutPassword();
+        ValidatableResponse response = courierApi.createCourier(courierWithoutPassword);
         assertEquals("Статус кода неверный",
                 HttpStatus.SC_BAD_REQUEST, response.extract().statusCode());
         assertEquals("Некорректный текст ошибки",
@@ -51,7 +51,6 @@ public class CreateCourierTest {
     @After
     public void cleanTestData(){
         //авторизация курьера и получение id курьера
-        Courier courier = courierApi.getCourier();
         Integer courierId = courierApi
                 .loginCourier(courier.getLogin(),courier.getPassword())
                 .extract().path("id");

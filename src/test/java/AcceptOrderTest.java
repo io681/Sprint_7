@@ -12,6 +12,7 @@ import org.junit.Test;
 import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
+import static ru.praktikum_services.qa_scooter.models.entities.CourierGenerator.randomCourier;
 
 
 @DisplayName("Принять заказ")
@@ -23,19 +24,17 @@ public class AcceptOrderTest {
 
     @Before
     public void setUp() {
-        //создание курьера и авторизация для получения id курьера
         courierApi = new CourierApi();
-        courierApi.createCourier();
-        Courier courier = courierApi.getCourier();
+        Courier courier = randomCourier();
+        courierApi.createCourier(courier);
         courierId = courierApi
                 .loginCourier(courier.getLogin(),courier.getPassword())
                 .extract().path("id");
-
-        //создать заказ и получить номер track
         orderApi = new OrderApi();
         int trackNumber = orderApi
                 .createOrder(Arrays.asList("GREY"))
                 .extract().path("track");
+
         //запросить заказ по номеру track и  получить id заказа
         orderId = orderApi
                 .getOrderById(trackNumber)
